@@ -1,0 +1,57 @@
+name: CI/CD Dockerize Python App and Push on Aws ECR+ docker Hub
+
+on:
+  push:
+    branches: [ main ]
+    
+jobs:
+  build and push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v6.0.0
+      with:
+       python-version: '3.10'
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt')}}
+        restore-keys: |
+         ${{ runner.os }}-pip-
+    - name: Install Dependencies
+      run: pip install -r requirements.txt
+    - name: Build Docker image
+      run: docker build -t flask-project
+    - name: Login to dockerHub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    - name: Push to Docker Hub
+      run: |
+       docker tag flask-project ${{ secrets.DOCKER_USERNAME }}/flask-project:latest
+       docker push  ${{ secrets.DOCKER_USERNAME }}/flask-project:latest
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+       aws-region: ${{ secrets.AWS_REGION }}
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    - name: Push to Aws ECR
+      run: |
+       docker tag flask-project:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+       docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+    - name: Upload build log artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-build
+        path: Dockerfile
+
+       
+
+
+    
