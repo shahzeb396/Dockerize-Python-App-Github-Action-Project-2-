@@ -43,7 +43,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
     - name: Push to Aws ECR
       run: |
-       docker tag flask-project:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+       docker tag flaskapp-shahzeb:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
     - name: Upload build log artifact
       uses: actions/upload-artifact@v4
