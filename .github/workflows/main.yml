@@ -30,7 +30,7 @@ jobs:
     - name: Push to Docker Hub
       run: |
        docker tag flask-project ${{ secrets.DOCKERHUB_USERNAME }}/flask-project:latest
-       docker push  ${{ secrets.DOCKEHUB_USERNAME }}/flask-project:latest
+       docker push  ${{ secrets.DOCKERHUB_USERNAME }}/flask-project:latest
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
